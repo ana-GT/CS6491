@@ -15,11 +15,11 @@ int pressedX; int pressedY;
 int pmouseX; int pmouseY;
 
 //-- Disk variables
-//int numDisks = 7;
-//float[] radii = {50, 20,60, 40, 25, 30, 40};
+int numDisks = 7;
+float[] radii = {50, 20,60, 40, 25, 30, 40};
 
-int numDisks = 5;
-float[] radii = {80, 64, 36, 58, 40};
+//int numDisks = 8;
+//float[] radii = {20, 10, 10, 15, 16,25, 20, 10};
 
 //-- Final message
 String EndMessage;
@@ -79,7 +79,7 @@ Boolean GameOver;
      displayMessageCenter( EndMessage );
    }
   } // end else Main.played
-   snapPicture();
+   //snapPicture();
 
  }
  
@@ -132,7 +132,7 @@ Boolean GameOver;
     Main.mode = true;
  
    // Let's PLAY
-   Main.masterSolve();
+   Main.masterSolve1();
    Main.played = true; Main.pack(); Main.mode = false;
    
    // Message
@@ -140,6 +140,23 @@ Boolean GameOver;
      EndMessage = "Computer is the winner!";
    }
   }   
+
+   // Computer plays
+   if( key == 'd' ) {
+    // Change mode to play
+    Main.mode = true;
+ 
+   // Let's PLAY
+   Main.masterSolve2();
+   Main.played = true; Main.pack(); Main.mode = false;
+   
+   // Message
+   if( Main.packRadius < A.packRadius && Main.packRadius < B.packRadius ) {
+     EndMessage = "Computer is the winner!";
+   }
+  }   
+
+
 
    if( key == 'q' ) {
      A.init( numDisks, radii );

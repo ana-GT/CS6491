@@ -309,6 +309,57 @@ class Player {
     return true;
   }
 
+  /**
+   * @function packSubset
+   * @brief The first circle is always the biggest so the limits for r should be OK
+   */
+  float packSubset( int[] _inds, int _num ) {
+   
+   float minRadius = BIG_NUMBER;
+   float minX = 0;
+   float minY = 0;
+   Boolean b = false;
+   Boolean flag = false;
+   int cnt = 0;
+   for( int r = int(maxRadius); r < 3*maxRadius; r++ ) {
+     
+     for( int x = int(x1); x < int(x2); x++ ) {
+
+       for( int y = int(y1); y < int(y2); y++ ) {
+
+         b = isBigEnoughSubset( x, y, float(r), _inds, _num );
+         if( b == true ) {
+           if( r < minRadius ) {
+            println("Packsubset: Only once" + str(cnt) );
+            minRadius = r;
+            minX = x;
+            minY = y;
+            flag = true; cnt++;
+           }
+         }
+         if( flag == true ) { break; }
+       } // y for
+         if( flag == true ) { break; }
+     } // x for
+       if( flag == true ) { break; }
+   } // r for
+   
+   return minRadius;            
+  }
+
+
+  /**
+   * @function isBigEnoughSubset
+   */
+  Boolean isBigEnoughSubset( float _x, float _y, float _r, int[] _inds, int _num ) {
+    for( int i = 0; i < _num; ++i ) {
+      if( disks[ _inds[i] ].isInside( _x, _y, _r ) == false ) {
+        return false;
+      } 
+    }    
+    return true;
+  }
+
  /**
   * @function Make Tangent
   */
@@ -386,10 +437,72 @@ class Player {
   
   
   /**
-   * @function masterSolve
+   * @function masterSolve1
+   * @brief More complete solution (is it?)
    */
-   void masterSolve() {
+   void masterSolve1() {
      
+     // 1. Sort circles
+     int[] SD;
+     SD = sortDisks( disks, numDisks );
+
+    // 2. Locate first 
+    moveDiskTo( SD[0], (x2 - x1) / 4, (y2 - y1)/2 );
+
+    // 3. Put second to east -- CAREFUL, if you use EAST or WEST you might get an error in tangent
+    float[] dxy;
+    dxy = disks[SD[1]].getOrientMove( 0, disks[SD[0]] );
+    moveDiskTo( SD[1], dxy[0], dxy[1] );
+    
+    // 3. Move the rest of disks
+    float[][] Txy;
+    float r;  
+    float minR = BIG_NUMBER;
+    float minX = 0; 
+    float minY = 0;
+    
+    for( int i = 2; i < numDisks; ++i ) {
+
+      minR = BIG_NUMBER;
+      // Check all possible combinations
+      for( int j = 0; j < i - 1; ++j ) {
+        for( int k = j+1; k < i; ++k ) {
+          
+          Txy = disks[ SD[i] ].setTangent( disks[ SD[j] ], disks[ SD[k] ] );      
+          if( moveDiskTo( SD[i], Txy[0][0], Txy[0][1] ) == true ) {
+            r = packSubset( SD, i + 1 );            
+            if( r < minR ) {
+              minR = r;
+              minX = Txy[0][0];
+              minY = Txy[0][1];
+            }
+          }
+          if( moveDiskTo( SD[i], Txy[1][0], Txy[1][1] ) == true ) {
+            r = packSubset( SD, i + 1 );            
+            if( r < minR ) {
+              minR = r;
+              minX = Txy[1][0];
+              minY = Txy[1][1];
+            }
+          } 
+          
+        } // for k
+      } // for j
+      
+      // Set with the tangent position that gives the smallest radius (greedy)
+      moveDiskTo( SD[i], minX, minY );
+      
+    } // end for i
+    
+   } // end masterSolve1
+   
+   
+     /**
+   * @function masterSolve2
+   * @brief Quick and dirty
+   */
+   void masterSolve2() {
+
      // 1. Sort circles
      int[] SD;
      SD = sortDisks( disks, numDisks );
@@ -429,8 +542,8 @@ class Player {
       } // for j
       
     } // end for i
-    
-   } // end masterSolve
+     
+   } // end masterSolve2
    
    /**
     * @function sortDisks
