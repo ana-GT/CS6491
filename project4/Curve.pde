@@ -215,23 +215,53 @@ class Curve {
     computeTwistFreeBiNormals();
     return this;}
     
+  /**
+   * @function showTube
+   */  
   void showTube(float r, int ne, int nq, color col) {
       pt [][] C = new pt [2][ne];
-      boolean dark=true;
+      boolean dark=true; 
+      dark = false;
       // make circle in local cross section
       float [] c = new float [ne]; float [] s = new float [ne];
       for (int j=0; j<ne; j++) {c[j]=r*cos(TWO_PI*j/ne); s[j]=r*sin(TWO_PI*j/ne); };    
       int p=0; 
       for (int j=0; j<ne; j++) C[p][j]=P( P[0] , c[j],Nx[0], s[j],Ny[0] ); p=1-p;
       noStroke();
-      for (int i=1; i<n-1; i++) {
+      //for (int i=1; i<n-1; i++) {
+      for( int i = 0; i < n; ++i ) {  
         if(i%nq==0) dark=!dark; 
         for (int j=0; j<ne; j++) C[p][j]=P( P[i], c[j],Nx[i], s[j],Ny[i]); p=1-p;
         if(i>0) for (int j=0; j<ne; j++) {
-            if(dark) fill(200,200,200); else fill(col); dark=!dark; 
+            //if(dark) fill(forestGreen); else fill(col); //dark=!dark;
+            fill(col); 
             int jp=(j+ne-1)%ne; beginShape(); v(C[p][jp]); v(C[p][j]); v(C[1-p][j]); v(C[1-p][jp]); endShape(CLOSE);};
         }        
-      }
+  }
+
+  /**
+   * @function showPartialTube
+   */  
+  void showPartialTube(float r, int ne, int nq, color col, int _until ) {
+      pt [][] C = new pt [2][ne];
+      boolean dark=true; 
+      dark = false;
+      // make circle in local cross section
+      float [] c = new float [ne]; float [] s = new float [ne];
+      for (int j=0; j<ne; j++) {c[j]=r*cos(TWO_PI*j/ne); s[j]=r*sin(TWO_PI*j/ne); };    
+      int p=0; 
+      for (int j=0; j<ne; j++) C[p][j]=P( P[0] , c[j],Nx[0], s[j],Ny[0] ); p=1-p;
+      noStroke();
+      //for (int i=1; i<n-1; i++) {
+      for( int i = 0; i <= _until; ++i ) {  
+        if(i%nq==0) dark=!dark; 
+        for (int j=0; j<ne; j++) C[p][j]=P( P[i], c[j],Nx[i], s[j],Ny[i]); p=1-p;
+        if(i>0) for (int j=0; j<ne; j++) {
+            //if(dark) fill(forestGreen); else fill(col); //dark=!dark;
+            fill(col); 
+            int jp=(j+ne-1)%ne; beginShape(); v(C[p][jp]); v(C[p][j]); v(C[1-p][j]); v(C[1-p][jp]); endShape(CLOSE);};
+        }        
+  }
 
   vec II = V(1,0,0), JJ = V(0,1,0);
   }  // end class Curve

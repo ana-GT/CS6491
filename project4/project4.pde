@@ -26,7 +26,9 @@ Boolean
   filterFrenetNormal=true,
   showTwistFreeNormal=false, 
   showHelpText=false,
-  gShowPathCurve = false;
+  gShowPathCurve = false,
+  gShowPathCurveAnimated = false,
+  gShowT0 = false;
 
 // String SCC = "-"; // info on current corner
    
@@ -68,7 +70,7 @@ pt sE = P(), sF = P(); vec sU=V(); //  view parameters (saved with 'j'
  * @brief
  */
 void setup() {
-  size(600, 600, OPENGL);  
+  size(800, 700, OPENGL);  
   setColors(); 
   sphereDetail(6); 
   
@@ -82,7 +84,7 @@ void setup() {
 
   // Load meshes
   M.declareVectors();
-  M.loadMeshVTS("data/bunnySmooth.vts");
+  M.loadMeshVTS("data/horse.vts");
   M.resetMarkers().computeBox().updateON(); 
   // Set view
   F=P(); 
@@ -95,7 +97,7 @@ void setup() {
  * @brief
  */
 void draw() {  
-  background(white);
+  background(indianRed);
   // Help
   if(showHelpText) {
     camera(); // 2D display to show cutout
@@ -132,12 +134,18 @@ void draw() {
  
  
    // Show mesh corner    
-   if(showMesh) { fill(red); noStroke(); M.showc_seed(); M.showt_seed(); M.showPathTriangles(); } 
+   if( showMesh) { fill(red); noStroke(); M.showc_seed(); M.showPathTriangles(); } 
+   if( gShowT0 ) { M.showT0Triangles(); }
  
    // Show path curve
    if( gShowPathCurve ) { 
      M.showPathCurve(); 
      //M.showT0Triangles(); 
+   }
+   
+   // Show path curve animated
+   if( gShowPathCurveAnimated ) {
+     M.showPathCurveAnimated();
    }
  
   // Edit mesh  
@@ -150,9 +158,23 @@ void draw() {
   if (keyPressed&&key==' ') T.set(Pick()); // sets point T on the surface where the mouse points. The camera will turn toward's it when the ';' key is released
   SetFrame(Q,I,J,K);  // showFrame(Q,I,J,K,30);  // sets frame from picked points and screen axes
   // rotate view 
-  if(!keyPressed&&mousePressed) {E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); } // rotate E around F 
-  if(keyPressed&&key=='D'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K); }  //   Moves E forward/backward
-  if(keyPressed&&key=='d'&&mousePressed) {E=P(E,-float(mouseY-pmouseY),K);U=R(U, -PI*float(mouseX-pmouseX)/width,I,J); }//   Moves E forward/backward and rotatees around (F,Y)
+ // rotate E around F
+  if(!keyPressed&&mousePressed) {
+		E=R(E,  PI*float(mouseX-pmouseX)/width,I,K,F); 
+		E=R(E,-PI*float(mouseY-pmouseY)/width,J,K,F); }  
+	//   Moves E forward/backward	
+  if(keyPressed&&key=='f'&&mousePressed) {
+		E=P(E,-float(mouseY-pmouseY),K); 
+	}  
+	//   Moves E up/down	
+  if(keyPressed&&key=='a'&&mousePressed) {
+		E=P(E, float(mouseY-pmouseY),J ); 
+	}  
+	//   Moves E forward/backward and rotatees around (F,Y)
+  if(keyPressed&&key=='d'&&mousePressed) {
+		E=P(E,-float(mouseY-pmouseY),K);
+		U=R(U, -PI*float(mouseX-pmouseX)/width,I,J); 
+	}
    
   // -------------------------------------------------------- Disable z-buffer to display occluded silhouettes and other things ---------------------------------- 
   hint(DISABLE_DEPTH_TEST);  // show on top
@@ -176,14 +198,14 @@ Boolean pressed=false;
 void mousePressed() {pressed=true; }
   
 void mouseDragged() {
-  if(keyPressed&&key=='a') {C.dragPoint( V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
-  if(keyPressed&&key=='s') {C.dragPoint( V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve C in screen plane
-  if(keyPressed&&key=='b') {C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
-  if(keyPressed&&key=='v') {C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve Cb in XZ
-  if(keyPressed&&key=='x') {M.add(float(mouseX-pmouseX),I).add(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
-  if(keyPressed&&key=='z') {M.add(float(mouseX-pmouseX),I).add(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane
-  if(keyPressed&&key=='X') {M.addROI(float(mouseX-pmouseX),I).addROI(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
-  if(keyPressed&&key=='Z') {M.addROI(float(mouseX-pmouseX),I).addROI(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane 
+//  if(keyPressed&&key=='a') {C.dragPoint( V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
+//  if(keyPressed&&key=='s') {C.dragPoint( V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve C in screen plane
+//  if(keyPressed&&key=='b') {C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,.5*(mouseY-pmouseY),K) ); } // move selected vertex of curve C in screen plane
+ // if(keyPressed&&key=='v') {C.dragAll(0,5, V(.5*(mouseX-pmouseX),I,-.5*(mouseY-pmouseY),J) ); } // move selected vertex of curve Cb in XZ
+//  if(keyPressed&&key=='x') {M.add(float(mouseX-pmouseX),I).add(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
+//  if(keyPressed&&key=='z') {M.add(float(mouseX-pmouseX),I).add(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane
+//  if(keyPressed&&key=='X') {M.addROI(float(mouseX-pmouseX),I).addROI(-float(mouseY-pmouseY),J); M.normals();} // move selected vertex in screen plane
+ // if(keyPressed&&key=='Z') {M.addROI(float(mouseX-pmouseX),I).addROI(float(mouseY-pmouseY),K); M.normals();}  // move selected vertex in X/Z screen plane 
   }
 
 void mouseReleased() {
@@ -217,11 +239,30 @@ void keyPressed() {
   if( key=='.' ) {} // pick corner
   
   // Ring Expander - Hamiltonian thing
-  if( key=='p' ) { M.ring_expander(); }
-  // Curve around the Hamiltonian thing
-  if( key=='c' ) {
+  if( key=='p' ) { 
+    M.ring_expander();     
     M.getPathCurve();
-    gShowPathCurve = true;
+  }
+  // Curve around the Hamiltonian thing  
+  if( key=='c' ) {
+    gShowPathCurve = !gShowPathCurve;
+  }
+  if( key == 'x' ) {
+      gShowPathCurveAnimated = !gShowPathCurveAnimated;
+      gShowPathCurve = !gShowPathCurveAnimated;
+      M.resetAnimatedDraw();      
+  }
+  if( key == 'y' ) {
+    M.increaseDrawCurrentPoint();
+  }
+  
+  if( key == 'u' ) {
+    M.drawCurrentPath = M.pathCurves.size() - 1;
+    M.drawCurrentPoint = M.pathCurves.get( M.pathCurves.size() - 1 ).n - 1;
+  }
+  
+  if( key == 'q' ) {
+    gShowT0 = !gShowT0;
   }
 } 
 

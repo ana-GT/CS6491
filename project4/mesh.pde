@@ -57,6 +57,8 @@ class Mesh {
   int numCurves;
   ArrayList<Curve> pathCurves;
   ArrayList< ArrayList<pt> > curvesPts;
+  int drawCurrentPath;
+  int drawCurrentPoint;
   
 
  // Primary tables
@@ -588,10 +590,74 @@ void getTrianglesType() {
    
    for( int i = 0; i < pathCurves.size(); ++i ) {
      ( pathCurves.get(i) ).showSamples();
-     ( pathCurves.get(i) ).showTube(8,12,10,orange);
+     ( pathCurves.get(i) ).showTube(8,32,20,darkGreen);
      ( pathCurves.get(i) ).drawEdges2(); 
    }
 
+ }
+ 
+ /**
+  * @function showPathCurveAnimated
+  */
+ void showPathCurveAnimated() {
+
+     // Initial point
+     pt appendix = ( pathCurves.get(0) ).P[0];
+     fill(red);
+     show( appendix, 12 );
+     noFill();
+   
+   color col = darkGreen; // default stem   
+   for( int i = 0; i < drawCurrentPath; ++i ) {
+     if( i == 0 ) { col = darkGreen; }
+     else if( (i % 2) == 0 ) { col = springGreen; }
+     else { col = chartreuse; }
+     
+     ( pathCurves.get(i) ).showTube(8,12,10,col);
+     appendix = ( pathCurves.get(i) ).P[pathCurves.get(i).n - 1];
+     fill(red);
+     show( appendix, 12 );
+     noFill();
+   }
+   
+   // Current path
+   if( drawCurrentPath == 0 ) { col = darkGreen; }
+   else if( (drawCurrentPath % 2) == 0 ) { col = springGreen; }
+   else { col = chartreuse; }
+   ( pathCurves.get(drawCurrentPath) ).showPartialTube(8,12,10, col, drawCurrentPoint );
+
+   // If it is last point
+   if( drawCurrentPoint + 1 ==  pathCurves.get(drawCurrentPath).n ) {
+     appendix = ( pathCurves.get(drawCurrentPath) ).P[drawCurrentPoint];
+     fill(red);
+     show( appendix, 12 );
+     noFill();
+   } 
+   
+ }
+ 
+ /**
+  * @function resetAnimatedDraw
+  */
+ void resetAnimatedDraw() {
+   drawCurrentPoint = 0;
+   drawCurrentPath = 0;
+ }
+ /**
+  * @function increaseDrawCurrentPoint
+  */
+ void increaseDrawCurrentPoint() {
+   
+   drawCurrentPoint++;
+   
+   if( drawCurrentPoint >= pathCurves.get( drawCurrentPath ).n ) {
+     drawCurrentPath++;
+     drawCurrentPoint = 0;
+   }
+   
+   if( drawCurrentPath >= pathCurves.size() ) {
+     drawCurrentPath = 0;
+   }
  }
 
   // ============================================= CORNER OPERATORS =======================================
@@ -828,8 +894,8 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
   
   void showc(){noStroke(); fill(dred); showCorner(cc,r); } // displays corner markers
 
-  void showc_seed(){noStroke(); fill(dblue); showCorner(c_seed,r); } // displays corner seed 
-  void showt_seed(){noStroke(); fill(dcyan); simpleShade(t_seed); } // displays triangle seed   
+  void showc_seed(){noStroke(); fill(red); showCorner(c_seed,r); } // displays corner seed 
+  void showt_seed(){noStroke(); fill(dred); simpleShade(t_seed); } // displays triangle seed   
 
   void showcc(){noStroke(); fill(blue); showCorner(sc,r);  fill(green); showCorner(o(cc),r*.9); fill(dred); showCorner(cc,r); } // displays corner markers
   
@@ -862,7 +928,7 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
 // ============================================= DISPLAY EDGES =======================================
   void showBorder() {for (int c=0; c<nc; c++) {if (b(c) && visible[t(c)] && !NME[c]) {drawEdge(c);}; }; };         // draws all manifold border edges 
   void showEdges () {for(int c=0; c<nc; c++) drawEdge(c); };  
-  void drawEdge(int c) {show(g(p(c)),g(n(c))); };  // draws edge of t(c) opposite to corner c
+  void drawEdge(int c) { stroke(dorange); show(g(p(c)),g(n(c))); noStroke();};  // draws edge of t(c) opposite to corner c
   void drawSilhouettes() {for (int c=0; c<nc; c++) if (c<o(c) && frontFacing(t(c))!=frontFacing(t(o(c)))) drawEdge(c); }  
 
 // ============================================= DISPLAY TRIANGLES =======================================
@@ -896,7 +962,7 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
    * @function showPathTriangles
    */
   void showPathTriangles() {
-    fill(dcyan);
+    fill(orange);
     for( int ti = 0; ti < nt; ++ti ) {
       if( t_m[ti] == true ) {
         simpleShade(ti);
@@ -909,13 +975,13 @@ void purge(int k) {for(int i=0; i<nt; i++) visible[i]=Mt[i]==k;} // hides triang
    * @function showT0Triangles
    */
   void showT0Triangles() {
-    fill(dred);
+    fill(dgreen);
     for( int ti = 0; ti < numPathTriangles; ++ti ) {
       if( Ti[ti] == 0 ) {  
          simpleShade( pathTriangles[ti] );
       }
-    }
-    fill(dgreen);
+    } 
+    fill(dred);
         for( int ti = 0; ti < numPathTriangles; ++ti ) {
       if( Ti[ti] == 2) {  
          simpleShade( pathTriangles[ti] );
